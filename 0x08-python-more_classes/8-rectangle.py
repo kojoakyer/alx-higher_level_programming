@@ -1,103 +1,95 @@
 #!/usr/bin/python3
-"""Defines a Rectangle class."""
+
+"""Solves the N-Queens challenge."""
 
 
-class Rectangle:
-    """Represent a rectangle.
+def n_queens(n: int) -> "list[list[list[int]]]":
+    """
+    Solves the N-Queens challenge.
 
-    Attributes:
-        number_of_instances (int): The number  Rectangle instances.
-        print_symbol (any): The symbol used for string representation.
+    Args:
+        n (int): The size of  chessboard.
+
+    Returns:
+        list[list[list[int]]]: The chessboard with the Queens placed in
+        non-attacking positions.
     """
 
-    number_of_instances = 0
-    print_symbol = "#"
-
-    def __init__(self, width=0, height=0):
-        """Initialize a new Rectangle.
+    def is_not_attack(board: list, row: int, col: int) -> bool:
+        """
+        Checks whether a slot is non-attacking when a Queen is placed.
 
         Args:
-            width (int): The width the new rectangle.
-            height (int): The height of the new rectangle.
+            board (list): The board to check.
+            row (int): The current row on the board.
+            col (int): The column of the board.
+
+        Returns:
+            bool: True if the position leads to a non-attacking placement,
+            else False
         """
-        type(self).number_of_instances += 1
-        self.width = width
-        self.height = height
+        for i in range(row):
+            if (
+                board[i] == col  # check for vertical possible attacks
+                or board[i] - i == col - row
+                or board[i] + i == col + row
+            ):
+                return False
 
-    @property
-    def width(self):
-        """Get/set the width of the Rectangle."""
-        return self.__width
+        return True
 
-    @width.setter
-    def width(self, value):
-        if not isinstance(value, int):
-            raise TypeError("width must be an integer")
-        if value < 0:
-            raise ValueError("width must be >= 0")
-        self.__width = value
-
-    @property
-    def height(self):
-        """Get/set the height of the Rectangle."""
-        return self.__height
-
-    @height.setter
-    def height(self, value):
-        if not isinstance(value, int):
-            raise TypeError("height must be an integer")
-        if value < 0:
-            raise ValueError("height must be >= 0")
-        self.__height = value
-
-    def area(self):
-        """Return the area of the Rectangle."""
-        return (self.__width * self.__height)
-
-    def perimeter(self):
-        """Return the perimeter of the Rectangle."""
-        if self.__width == 0 or self.__height == 0:
-            return (0)
-        return ((self.__width * 2) + (self.__height * 2))
-
-    @staticmethod
-    def bigger_or_equal(rect_1, rect_2):
-        """Return the Rectangle with the greater area.
+    def add_queen(board: list, row: int) -> None:
+        """
+        Handles the placement of Queens in a non-attacking fashion.
 
         Args:
-            rect_1 (Rectangle): The first Rectangle.
-            rect_2 (Rectangle): The second Rectangle.
-        Raises:
-            TypeError: If either of rect_1 or rect_2 not a Rectangle.
+            board (list): The board to insert into (temporal).
+            row (int): The current row in the board.
         """
-        if not isinstance(rect_1, Rectangle):
-            raise TypeError("rect_1 must be an instance of Rectangle")
-        if not isinstance(rect_2, Rectangle):
-            raise TypeError("rect_2 must be an instance of Rectangle")
-        if rect_1.area() >= rect_2.area():
-            return (rect_1)
-        return (rect_2)
+        if row == n:  # base case
+            chessboard.append([[i, board[i]] for i in range(n)])
+            return
 
-    def __str__(self):
-        """Return the printable representation of the Rectangle
-        """
-        if self.__width == 0 or self.__height == 0:
-            return ("")
+        for col in range(n):
+            if is_not_attack(board, row, col):
+                board[row] = col
+                add_queen(board, row + 1)
+                board[row] = 0
 
-        rect = []
-        for i in range(self.__height):
-            [rect.append(str(self.print_symbol)) for j in range(self.__width)]
-            if i != self.__height - 1:
-                rect.append("\n")
-        return ("".join(rect))
+    chessboard = []
+    board = [0] * n
+    add_queen(board, 0)
 
-    def __repr__(self):
-        """Return the string representation of the Rectangle."""
-        rect = "Rectangle(" + str(self.__width)
-        rect += ", " + str(self.__height) + ")"
-        return (rect)
+    return chessboard
 
-    def __del__(self):
-        """Print a message for every deletion of a Rectangle."""
-        type(self).number_of_instances -= 1
-        print("Bye rectangle...")
+
+def print_not_attack_combination(chessboard: "list[list[list[int]]]") -> None:
+    """
+    Prints all the non-attacking combinations of N-Queens.
+
+    Args:
+        chessboard (list[list[list[int]]]): The list of all non-attacking
+        combinations.
+    """
+    for row in chessboard:
+        print(row)
+
+
+if _name_ == "_main_":
+    """Entry point"""
+    import sys
+
+    if len(sys.argv) != 2:
+        print("Usage: nqueens N")
+        sys.exit(1)
+
+    if not sys.argv[1].isdigit():
+        print("N must be a number")
+        sys.exit(1)
+
+    N = int(sys.argv[1])
+    if N < 4:
+        print("N must be at least 4")
+        sys.exit(1)
+
+    print_not_attack_combination(n_queens(N))
